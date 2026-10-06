@@ -1,53 +1,20 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  # 1. قاعدة بيانات السلاسل الزمنية فائقة السرعة
-  questdb:
-    image: questdb/questdb:latest
-    container_name: quant_questdb
-    restart: always
-    ports:
-      - "9000:9000"   # REST API & Console Web UI
-      - "9009:9009"   # Influx Line Protocol (ILP) TCP
-      - "8812:8812"   # Postgres Wire Protocol
-    environment:
-      - QDB_SHARED_WORKER_COUNT=4
-    volumes:
-      - questdb_data:/var/lib/questdb
-    networks:
-      - quant_network
-
-  # 2. محرك التداول الكمي الرئيسي والتنفيذ
-  trading_engine:
-    build: .
-    container_name: quant_trading_engine
+  sixx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sixx-trading-engine
     restart: unless-stopped
-    command: python main_v2_institutional.py
-    depends_on:
-      - questdb
+    env_file:
+      - .env
     environment:
-      - QUESTDB_HOST=questdb
-      - QUESTDB_PORT=9009
-    networks:
-      - quant_network
-
-  # 3. لوحة المراقبة التفاعلية الحية
-  dashboard:
-    build: .
-    container_name: quant_dashboard
-    restart: always
-    command: streamlit run dashboard_app.py --server.port=8501 --server.address=0.0.0.0
+      TRADING_MODE: DEMO
+      PYTHONUNBUFFERED: "1"
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    command: python main.py
     ports:
       - "8501:8501"
-    depends_on:
-      - questdb
-      - trading_engine
-    networks:
-      - quant_network
-
-volumes:
-  questdb_data:
-
-networks:
-  quant_network:
-    driver: bridge

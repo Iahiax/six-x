@@ -1,34 +1,43 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-echo "=========================================================="
-echo "   بدء تثبيت بنية CAPITAL-AI-X على سيرفر Linux...   "
-echo "=========================================================="
+echo "========================================"
+echo " Capital-AI-X Setup Script"
+echo "========================================"
+echo ""
 
-sudo apt-get update && sudo apt-get install -y \
-    python3-pip \
-    python3-venv \
-    tor \
-    curl \
-    git \
-    sqlite3 \
-    build-essential
+echo "📦 Upgrading pip..."
+python3 -m pip install --upgrade pip --quiet
 
-sudo systemctl enable tor
-sudo systemctl restart tor
-
-python3 -m venv venv
-source venv/bin/activate
-
-pip install --upgrade pip
-pip install -r requirements.txt
-
-python3 -c "from state_persistence import SystemStateManager; SystemStateManager()"
-
-if [ ! -f .env ]; then
-    cp .env.example .env
+if [ -f requirements.txt ]; then
+  echo "📥 Installing dependencies..."
+  python3 -m pip install -r requirements.txt --quiet
+  echo "✅ Dependencies installed"
+else
+  echo "❌ requirements.txt not found" >&2
+  exit 1
 fi
 
-echo "=========================================================="
-echo "   اكتمل التثبيت بنجاح! يمكنك الآن تشغيل main.py   "
-echo "=========================================================="
+if [ ! -f .env ] && [ -f .env.example ]; then
+  echo "📝 Creating .env from .env.example..."
+  cp .env.example .env
+  echo "✅ Created .env (edit this file with your credentials)"
+fi
+
+mkdir -p logs
+echo "📁 Created logs directory"
+
+echo ""
+echo "========================================"
+echo "✅ Setup completed successfully!"
+echo "========================================"
+echo ""
+echo "Next steps:"
+echo "  1. Edit .env with your credentials"
+echo "  2. Run: python main.py"
+echo "  3. Or run: streamlit run app.py"
+echo "  4. Or run: docker-compose up --build"
+echo ""
+echo "Default trading mode: DEMO (safe)"
+echo "To switch to LIVE: Use /mode command in Telegram Bot"
+echo ""
