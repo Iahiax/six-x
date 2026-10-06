@@ -1,30 +1,4 @@
 # six-x
-capital-ai-x/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml
-├── .env.example
-├── README.md
-├── Dockerfile
-├── docker-compose.yml
-├── setup.sh
-├── capital-ai-x.service
-├── requirements.txt
-├── config.py
-├── complete_x_engine.py
-├── gpu_ml_engine.py
-├── backtest_engine.py
-├── vps_ssh_automation.py
-├── capital_websocket.py
-├── risk_and_execution.py
-├── telegram_control_bot.py
-├── tor_darkweb_scraper.py
-├── state_persistence.py
-├── maintenance.py
-├── app.py
-├── main.py
-└── unit_tests.py
-
 
 # ⚡ CAPITAL-AI-X: Institutional-Grade Quant & AI Engine
 
@@ -40,3 +14,16 @@ cd capital-ai-x
 chmod +x setup.sh
 ./setup.sh
 python main.py
+
+
+
+---
+title: Institutional Macro Quant Engine
+emoji: 🧠
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.31.0
+app_file: app.py
+pinned: false
+---
