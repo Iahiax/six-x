@@ -3,29 +3,22 @@ from datetime import datetime, time, timedelta
 from typing import Tuple, Dict, Any
 
 class AdvancedMarketSessionTimer:
-    """
-    مُحيّد الجلسات ومؤقت الأسواق اللحظي مع دعم التوقيت الصيفي والعد التنازلي
-    """
     def __init__(self):
         self.ny_tz = zoneinfo.ZoneInfo("America/New_York")
         self.utc_tz = zoneinfo.ZoneInfo("UTC")
 
     def get_market_status(self, asset_type: str) -> Tuple[bool, str, int]:
-        """
-        إرجاع: (هل السوق مفتوح؟، وصف الحالة، الثواني المتبقية حتى التغير القادم)
-        """
         now_utc = datetime.now(self.utc_tz)
         now_ny = datetime.now(self.ny_tz)
 
         if asset_type == "CRYPTO":
-            return True, "CRYPTO_ALWAYS_OPEN_247", 86400
+            return True, "CRYPTO_247_OPEN", 86400
 
         elif asset_type == "FOREX":
-            weekday = now_utc.weekday() # 0 = Mon, 6 = Sun
+            weekday = now_utc.weekday()
             hour = now_utc.hour
 
             if weekday == 5 or (weekday == 4 and hour >= 22) or (weekday == 6 and hour < 22):
-                # حساب موعد الافتتاح الأحد 22:00 UTC
                 days_until_sun = (6 - weekday) % 7
                 target_open = (now_utc + timedelta(days=days_until_sun)).replace(hour=22, minute=0, second=0, microsecond=0)
                 seconds_left = int((target_open - now_utc).total_seconds())
@@ -36,7 +29,6 @@ class AdvancedMarketSessionTimer:
         elif asset_type == "US_EQUITIES":
             weekday = now_ny.weekday()
             current_time = now_ny.time()
-            
             open_time = time(9, 30, 0)
             close_time = time(16, 0, 0)
 
@@ -55,6 +47,6 @@ class AdvancedMarketSessionTimer:
                 return False, "EQUITIES_POST_MARKET_CLOSED", int((next_day - now_ny).total_seconds())
             else:
                 next_close = now_ny.replace(hour=16, minute=0, second=0, microsecond=0)
-                return True, "EQUITIES_REGULAR_SESSION_OPEN", int((next_close - now_ny).total_seconds())
+                return True, "EQUITIES_REGULAR_OPEN", int((next_close - now_ny).total_seconds())
 
         return True, "UNKNOWN_ASSET_OPEN", 3600
